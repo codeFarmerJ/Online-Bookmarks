@@ -38,3 +38,9 @@
 - Get rid of deprecated ampersand in php code. See 
   https://php.net/manual/en/migration53.deprecated.php
   for details.
+
+===========================================
+
+2020.8.15, Version 0.8.16_beta
+- replace mysql statements deprecated by PHP version 7.2 with PDO 
+
