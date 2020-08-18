@@ -21,21 +21,19 @@ if ($foldername == "") {
 	</script>
 	
 	<?php
-}
+	}
 else {
-	$query = sprintf ("INSERT INTO folder (childof, name, public, user) values ('%d', '%s', '%d', '%s')",
-		$mysql->escape ($folderid),
-		$mysql->escape ($foldername),
-		$mysql->escape ($public),
-		$mysql->escape ($username));
-	if ($mysql->query ($query)) {
+	$query = "INSERT INTO folder (childof, name, public, user) values (?,?,?,?)";
+	$args = [$folderid, $foldername, $public, $username ];
+	if ($mysql->query ($query,$args)) {
 		echo "Folder successfully created<br>\n";
 		echo '<script language="JavaScript">reloadclose();</script>';
-	}
+		}
 	else {
 		message ($mysql->error);
+		}
 	}
-}
+
 
 require_once (ABSOLUTE_PATH . "footer.php");
 ?>

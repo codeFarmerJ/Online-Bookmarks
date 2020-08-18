@@ -7,7 +7,7 @@ $noconfirm = set_get_noconfirm ();
 # the root folder cannot be deleted
 if ($folderid == "" || $folderid == 0){
 	message ("No Folder selected");	
-}
+	}
 else if (!$settings['confirm_delete'] || $noconfirm) {
 	# lets do the deletion if the confirm variable is set to FALSE or after confirmation
 	require_once (ABSOLUTE_PATH . "folders.php");
@@ -18,41 +18,38 @@ else if (!$settings['confirm_delete'] || $noconfirm) {
 	$parent_folders = $tree->get_path_to_root ($folderid);
 	if (count ($parent_folders) > 1) {
 		$parent_folder = $parent_folders[1];
-	}
+		}
 	else {
 		$parent_folder = 0;
-	}
+		}
 
 	array_push ($tree->get_children, $folderid);
 	$folders = implode (",", $tree->get_children);
 	# first delete all subfolders
-	$query = sprintf ("DELETE FROM folder WHERE childof IN (%s) AND user='%s'", 
-		$mysql->escape ($folders),
-		$mysql->escape ($username));
-	if (!$mysql->query ($query)) {
+	$query = "DELETE FROM folder WHERE childof IN (?) AND user=?";
+	$args = [$folders, $username];
+	if (!$mysql->query ($query,$args)) {
 		message ($mysql->error);
-	}
+		}	
 
 	# of course, we want to delete all bookmarks as well
-	$query = sprintf ("DELETE FROM bookmark WHERE childof IN (%s) AND user='%s'", 
-		$mysql->escape ($folders),
-		$mysql->escape ($username));
-	if (!$mysql->query ($query)) {
+	$query = "DELETE FROM bookmark WHERE childof IN (?) AND user=?";
+	$args = [$folders, $username];
+	if (!$mysql->query ($query,$args)) {
 		message ($mysql->error);
-	}
+		}
 
 	# now delete the folder itself
-	$query = sprintf ("DELETE FROM folder WHERE id=%d AND user='%s'", 
-		$mysql->escape ($folderid),
-		$mysql->escape ($username));
-	if (!$mysql->query ($query)) {
+	$query = "DELETE FROM folder WHERE id=? AND user=?";
+	$args = [$folderid, $username];
+	if (!$mysql->query ($query,$args)) {
 		message ($mysql->error);
-	}
+		}
 
 	?>
 
 <script language="JavaScript">
-<!--
+
 function reloadparentwindow() {
   var path = window.opener.document.URL;
   searchstring = /(folderid=[0-9]*)/gi;
@@ -74,7 +71,7 @@ function reloadparentwindow() {
   window.close();
 }
 reloadparentwindow();
-//-->
+
 </script>
 
 	<?php
@@ -82,19 +79,18 @@ reloadparentwindow();
 else {
 	# if there was no confirmation, as to _really_ delete the whole stuff
 	# print the verification form
-	$query = sprintf ("SELECT name, public FROM folder WHERE id=%d AND user='%s' AND deleted!='1'", 
-		$mysql->escape ($folderid),
-		$mysql->escape ($username));
+	$query = "SELECT name, public FROM folder WHERE id=? AND user=? AND deleted!='1'";
+	$args = [$folderid, $username];
 
-	if ($mysql->query ($query)) {
-		if (mysql_num_rows ($mysql->result) == 0){
+	if ($result = $mysql->query ($query, $args)) {
+		if ($result->rowCount() == 0){
 			message ("Folder does not exist");
-		}
-		$row = mysql_fetch_object ($mysql->result);
+			}
+		$row = $result->fetch(PDO::FETCH_ASSOC);
 		?>
 
 		<h2 class="title">Delete this Folder?</h2>
-		<p><?php echo $row->public ? $folder_opened_public : $folder_opened; echo " " . $row->name; ?></p>
+		<p><?php echo $row["public"] ? $folder_opened_public : $folder_opened; echo " " . $row["name"]; ?></p>
 
 		<form action="<?php echo $_SERVER['SCRIPT_NAME'] . "?folderid=" . $folderid . "&amp;noconfirm=1";?>" method="POST" name="fdelete">
 		<input type="submit" value=" OK ">

@@ -43,23 +43,26 @@ class folder {
 
 	function get_user_data () {
 		global $mysql;
-		$query = sprintf ("SELECT id, childof, name, public FROM folder WHERE user='%s' AND deleted!='1' ORDER BY name",
-			$mysql->escape ($_SESSION['username']));
+//		$query = sprintf ("SELECT id, childof, name, public FROM folder WHERE user='%s' AND deleted!='1' ORDER BY name",
+//			$mysql->escape ($_SESSION['username']));
 //	if ($mysql->query ($query)) {
 //			while ($row = mysql_fetch_assoc ($mysql->result)) {
-		$result = $mysql->query($query);
-		while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-			$this->folders[$row['id']] = $row;
-			if (!isset ($this->children[$row['childof']])) {
-				$this->children[$row['childof']] = array ();
+
+		$query = "SELECT id, childof, name, public FROM folder WHERE user=? AND deleted!='1' ORDER BY name";
+		$args = [$_SESSION['username']];
+		if ($result = $mysql->query($query,$args)) {
+			while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+				$this->folders[$row['id']] = $row;
+				if (!isset ($this->children[$row['childof']])) {
+					$this->children[$row['childof']] = array ();
+					}
+				array_push ($this->children[$row['childof']], $row['id']);
+				}
 			}
-			array_push ($this->children[$row['childof']], $row['id']);
+		else {
+			message ($mysql->error);
+			}
 		}
-//	}
-//	else {
-//		message ($mysql->error);
-//	}
-	}
 
 	function get_shared_data ($user) {
 		global $mysql, $username;
@@ -73,9 +76,11 @@ class folder {
 		}
 
 		# get all shared folders for the given user
-		$query = "SELECT id, childof, name, public FROM folder WHERE public='1' AND deleted!='1' AND user='$this->foreign_username' ORDER BY name";
+//		$query = "SELECT id, childof, name, public FROM folder WHERE public='1' AND deleted!='1' AND user='$this->foreign_username' ORDER BY name";
 //		if ($mysql->query ($query)) {
-		if ($result = $mysql->query ($query)) {
+		$query = "SELECT id, childof, name, public FROM folder WHERE public='1' AND deleted!='1' AND user=? ORDER BY name";
+		$args = [$this->foreign_username];
+		if ($result = $mysql->query ($query,$args)) {
 			# make two arrays:
 			# 1) $children containing arrays with children. the keys of these arrays are the id's of the parents
 			# 2) $folders containing arrays with folder settings (id, childof, name, public)
