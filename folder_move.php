@@ -35,26 +35,24 @@ if ($sourcefolder == "") {
 	</script>
 
 	<?php
-}
+	}
 else if ($sourcefolder == $folderid) {
 	echo '<script language="JavaScript">self.close();</script>';
-}
+	}
 else if (in_array ($sourcefolder, $parents)){
 	message ("A folder cannot be moved to one of its own subfolders");
-}
+	}
 else if ($sourcefolder != "" && $sourcefolder != $folderid){
-	$query = sprintf ("UPDATE folder SET childof='%d' WHERE id='%d' AND user='%s'", 
-		$mysql->escape ($folderid),
-		$mysql->escape ($sourcefolder),
-		$mysql->escape ($username));
+	$query = "UPDATE folder SET childof=? WHERE id=? AND user=? ";
+	$args = [$folderid, $sourcefolder, $username];
 
-	if ($mysql->query ($query)) {
+	if ($mysql->query ($query,$args)) {
 		echo "Folder moved<br>\n";
 		echo '<script language="JavaScript">reloadclose();</script>';
-	}
+		}
 	else {
 		message ($mysql->error);
+		}
 	}
-}
 require_once (ABSOLUTE_PATH . "footer.php");
 ?>

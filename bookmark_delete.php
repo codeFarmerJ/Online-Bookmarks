@@ -9,11 +9,8 @@ if (count ($bmlist) == 0){
 }
 else if (!$settings['confirm_delete'] || set_get_noconfirm ()){
 	$bmlist = implode (",", $bmlist);
-//	$query = sprintf ("DELETE FROM bookmark WHERE id IN (%s) AND user='%s'",
-//		$mysql->escape ($bmlist),
-//		$mysql->escape ($username));
-	$query = "DELETE FROM bookmark WHERE id IN (?) AND user=?";
-	$args = [$bmlist, $username];
+	$query = "DELETE FROM bookmark WHERE id IN ($bmlist) AND user=?";
+	$args = [$username];
 	if ($mysql->query ($query,$args)) {
 		echo "Bookmarks successfully deleted<br>\n";
 		echo '<script language="JavaScript">reloadclose();</script>';
@@ -24,11 +21,8 @@ else if (!$settings['confirm_delete'] || set_get_noconfirm ()){
 }
 else {
 	$bmlistq = implode (",", $bmlist);
-//	$query = sprintf ("SELECT title, id, favicon FROM bookmark WHERE id IN (%s) AND user='%s' ORDER BY title",
-//		$mysql->escape ($bmlistq),
-//		$mysql->escape ($username));
-	$query = "SELECT title, id, favicon FROM bookmark WHERE id IN (?) AND user=? ORDER BY title";
-	$args = [$bmlistq, $username];
+	$query = "SELECT title, id, favicon FROM bookmark WHERE id IN ($bmlistq) AND user=? ORDER BY title";
+	$args = [$username];
 	if ($result = $mysql->query ($query,$args)) {
 		require_once (ABSOLUTE_PATH . "bookmarks.php");
 		$query_string = "?bmlist=" . implode ("_", $bmlist) . "&noconfirm=1";

@@ -38,8 +38,9 @@ else if ($folderid == '') {
 	message ('No destination Folder selected.');
 	}
 else {
-	$query = "UPDATE bookmark SET childof=? WHERE id IN (?) AND user=?";
-	$args = [$folderid, implode (",", $bmlist), $username];
+	$qlist = implode (",", $bmlist); 
+	$query = "UPDATE bookmark SET childof=? WHERE id IN ( $qlist ) AND user=?";
+	$args = [$folderid , $username];
 	if ($mysql->query ($query,$args)) {
 		echo "Bookmarks moved<br>\n";
 		echo '<script language="JavaScript">reloadclose();</script>';
