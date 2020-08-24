@@ -1,4 +1,3 @@
-
 <?php
 require_once ("./header.php");
 logged_in_only ();
