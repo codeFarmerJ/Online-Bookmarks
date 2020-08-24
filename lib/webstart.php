@@ -1,4 +1,5 @@
 <?php
+
 if ( ini_get( 'register_globals' ) ) {
         if ( isset( $_REQUEST['GLOBALS'] ) ) {
                 die( '<a href="http://www.hardened-php.net/index.76.html">$GLOBALS overwrite vulnerability</a>');
