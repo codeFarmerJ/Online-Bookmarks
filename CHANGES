@@ -42,5 +42,5 @@
 ===========================================
 
 2020.8.15, Version 0.8.16_beta
-- replace mysql statements deprecated by PHP version 7.2 with PDO 
+- replace mysql statements deprecated by PHP version 7.2 with PDO database calls.
 

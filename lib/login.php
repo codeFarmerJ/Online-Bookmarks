@@ -1,59 +1,58 @@
 <?php
 if (basename ($_SERVER['SCRIPT_NAME']) == basename (__FILE__)) {
 	die ("no direct access allowed");
-}
+	}
 
 $display_login_form = false;
 
 if (isset ($_SESSION)) {
 	if (isset ($_POST['username']) && $_POST['username'] != '' && ! $_SESSION['logged_in']) {
 		$auth->login ();
-	}
+		}
 	if (isset ($_GET['login']) && $_GET['login'] && ! $_SESSION['logged_in']) {
 		$display_login_form = true;
-	}
+		}
 	if (isset ($_GET['logout']) && $_GET['logout'] && $_SESSION['logged_in']) {
 		$auth->logout ();
-	}
+		}
 	if (isset ($_SESSION['username']) && ! check_username ($_SESSION['username'])) {  # XXX hoffe das ist ok so.
 		$auth->logout ();
-	}
+		}
 
 	if (isset ($_SESSION['logged_in']) && $_SESSION['logged_in']) {
 		if (isset ($_SESSION['username']) && $_SESSION['username'] != '') {
 			$username = $_SESSION['username'];
-			$query = sprintf ("SELECT * FROM user WHERE username='%s'",
-				$mysql->escape ($username));
+			$query = "SELECT * FROM user WHERE username=?";
+			$args = [$username];
 
 			# now get the settings.
-			$settings = $mysql->query ($query)->fetch(PDO::FETCH_ASSOC);
-//			if ($mysql->query ($query)) {
-//				$settings = mysql_fetch_assoc ($mysql->result);
-//			}
-//			else {
-//				message ($mysql->error);
-//			}
+			if ($result = $mysql->query ($query,$args)) {
+				$settings = $result->fetch(PDO::FETCH_ASSOC);
+				}
+			else {
+				message ($mysql->error);
+				}
 		
 			unset ($settings['password']);
-		}
+			}
 		else {
 			# instead of user preferences, set default settings.
 			$settings = default_settings ();
 			$username = '';
 			$auth->logout ();
+			}
 		}
-	}
 	else {
 		$settings = default_settings ();
 		$username = '';
 		$auth->logout ();
+		}
 	}
-}
 else {
 	$settings = default_settings ();
 	$username = '';
 	$auth->logout ();
-}
+	}
 
 function default_settings () {
 	$settings = array (
@@ -81,17 +80,17 @@ function default_settings () {
 # adjust some settings
 if ($settings['column_width_bookmark'] == 0 || ! is_numeric ($settings['column_width_bookmark'])) {
 	$column_width_bookmark = "100%";
-}
+	}
 else {
 	$column_width_bookmark = $settings['column_width_bookmark'] . "px";
-}
+	}
 
 $column_width_folder = $settings['column_width_folder'] . "px";
 $table_height = $settings['table_height'] . "px";
 
 if ( ! is_numeric ($settings['date_format'])) {
 	$settings['date_format'] = 0;
-}
+	}
 
 # set some often used vars
 $folderid = set_get_folderid ();
