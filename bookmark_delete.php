@@ -33,7 +33,6 @@ else {
 	
 		<?php
 		$bookmarks = array ();
-//		while ($row = mysql_fetch_assoc ($mysql->result)) {
 		while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
 			array_push ($bookmarks, $row);
 		}
