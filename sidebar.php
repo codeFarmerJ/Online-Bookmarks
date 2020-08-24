@@ -21,25 +21,21 @@ class sidebar {
                 $this->counter = 0;
 
                 # collect the bookmark data
-                $query = sprintf ("SELECT title, url, description, childof, id, favicon
-                        FROM bookmark
-                        WHERE user='%s'
-                        AND deleted!='1' ORDER BY title",
-                        $mysql->escape ($username));
+                $query = "SELECT title, url, description, childof, id, favicon FROM bookmark 
+                        WHERE user=? AND deleted!='1' ORDER BY title";
+                $args = [$username];
 
-//                if ($mysql->query ($query)) {
-                if ($result = $mysql->query ($query)) {
-//                        while ($row = mysql_fetch_assoc ($mysql->result)) {
+                if ($result = $mysql->query ($query,$args)) {
                         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                                 if (!isset ($this->bookmarks[$row['childof']])) {
                                         $this->bookmarks[$row['childof']] = array ();
-                                }
+                                        }
                                 array_push ($this->bookmarks[$row['childof']], $row);
+                                }
                         }
-                }
                 else {
-//                        message ($mysql->error);
-                }
+                        message ($mysql->error);
+                        }
         }
 
         function make_tree ($folderid) {
