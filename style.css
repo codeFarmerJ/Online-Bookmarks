@@ -174,7 +174,8 @@ div.description, span.private, span.public, span.date, a.footer {
 	font-size: smaller;
 }
 .invisible {
-	visibility: hidden;
+	/* visibility: hidden; */
+	display: none;
 }
 p.shared {
 	margin: 10px;
