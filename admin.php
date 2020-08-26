@@ -215,8 +215,9 @@ $message2 = '';
 						</table>
 						
 						<?php
-						function check_version () {
-							return "this is it";
+						function check_version () { 
+						// restore this someday
+							return "this is it"; 
 							$version = null;
 							if ($fp = @fsockopen ("www.frech.ch", 80)) {
 								$get = "GET /online-bookmarks/bookmarks/VERSION HTTP/1.0\r\n\r\n";
