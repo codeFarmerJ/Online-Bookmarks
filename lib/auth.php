@@ -6,17 +6,17 @@ class auth {
 	var $password = '';
 
 	function auth () {
-		if (!session_id ()){
+		if (!session_id ()) {
 			session_start();
-		}
+			}
 
 		if ($this->check_auth ()) {
 			$_SESSION['logged_in'] = true;
-		}
+			}
 		else {
 			$_SESSION['logged_in'] = false;
+			}
 		}
-	}
 
 	function check_auth () {
 		if (session_id ()
@@ -25,36 +25,37 @@ class auth {
 			&& isset ($_SESSION['username'])
 			&& $_SESSION['username'] != ''
 			&& isset ($_SESSION['logged_in'])
-			&& $_SESSION['logged_in']) {
+			&& $_SESSION['logged_in']) 
+			{
 			return true;
-		}
+			}
 		else if ($this->check_cookie ()) {
 			return true;
-		}
+			}
 		return false;
-	}
+		}
 
 	function assign_data () {
 		if (   isset($_POST['username'])
 			&& isset($_POST['password'])
 			&& $_POST['username'] != ''
-			&& $_POST['password'] != '') {
-				$this->username = $_POST['username'];
-				$this->password = $_POST['password'];
-				return true;
-		}
+			&& $_POST['password'] != '') 
+			{
+			$this->username = $_POST['username'];
+			$this->password = $_POST['password'];
+			return true;
+			}
 		return false;
-	}
+		}
 
 	function login () {
 		$_SESSION['logged_in'] = false;
 		if ($this->assign_data ()) {
 			global $mysql;
-			$query = sprintf("SELECT COUNT(*) FROM user WHERE md5(username)=md5('%s') AND password=md5('%s')",
-				$mysql->escape ($this->username),
-				$mysql->escape ($this->password));
-//			if ($mysql->query ($query) && mysql_result ($mysql->result, 0) === "1") {
-			if ($mysql->query ($query)->rowCount() == 1) {
+			$query = "SELECT COUNT(*) as cnt FROM user WHERE md5(username)=md5(?) AND password=md5(?)";
+			$args = [$this->username, $this->password];
+			$result = $mysql->query ($query,$args)->fetch(PDO::FETCH_ASSOC);
+			if ($result['cnt'] == 1) {
 				if (isset ($_POST['remember'])) {
 					global $cookie;
 					$cookie['data'] = serialize (array ($this->username, md5 ($cookie['seed'] . md5 ($this->password))));
@@ -63,16 +64,16 @@ class auth {
 								$cookie['expire'],
 								$cookie['path'],
 								$cookie['domain']);
-				}
+					}
 				$this->set_login_data ($this->username);
-			}
+				}
 			else {
 				$this->logout ();
+				}
 			}
-		}
 		unset ($_POST['password']);
 		unset ($this->password);
-	}
+		}
 
 	function logout () {
 		global $cookie;
@@ -80,36 +81,36 @@ class auth {
 		unset ($_SESSION['username']);
 		@setcookie ($cookie['name'], "", time() - 1, $cookie['path'], $cookie['domain']);
 		$_SESSION['logged_in'] = false;
-	}
+		}
 
 	function set_login_data ($username) {
 		$_SESSION['challengekey'] = md5 ($username . microtime ());
 		$_SESSION['username'] = $username;
 		$_SESSION['logged_in'] = true;
-	}
+		}
 
 	function check_cookie () {
 		global $cookie, $mysql;
 		if (   isset ($cookie['name'])
 			&& $cookie['name'] != ''
-			&& isset ($_COOKIE[$cookie['name']])) {
+			&& isset ($_COOKIE[$cookie['name']])) 
+			{
 			list ($cookie['username'], $cookie['password_hash']) = @unserialize ($_COOKIE[$cookie['name']]);
-			$query = sprintf("SELECT COUNT(*) FROM user WHERE username='%s' AND MD5(CONCAT('%s', password))='%s'",
-				$mysql->escape ($cookie['username']),
-				$mysql->escape ($cookie['seed']),
-				$mysql->escape ($cookie['password_hash']));
-//			if ($mysql->query ($query) && mysql_result ($mysql->result, 0) === "1") {
-			if ($mysql->query ($query)->rowCount() == 1) {
+
+			$query = "SELECT COUNT(*) as cnt FROM user WHERE username=? AND MD5(CONCAT(?, password))=?";
+			$args = [$cookie['username'], $cookie['seed'], $cookie['password_hash'] ];
+			$result = $mysql->query ($query,$args)->fetch(PDO::FETCH_ASSOC);
+			if ($result['cnt'] == 1) {
 				$this->set_login_data ($cookie['username']);
 				return true;
-			}
+				}
 			else {
 				$this->logout ();
 				return false;
+				}
 			}
-		}
 		return false;
-	}
+		}
 
 	function display_login_form () {
 		?>
