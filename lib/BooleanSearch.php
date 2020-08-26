@@ -1,6 +1,8 @@
 <?php
-/**
-* Search lib by John-Paul Durrieu
+/*
+*
+* Search lib by John-Paul Durrie
+*
 */
 
 // Token types

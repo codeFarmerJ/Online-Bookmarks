@@ -27,7 +27,7 @@ class mysql {
 			} 
 		catch (\PDOException $e) {
 			throw new \PDOException($e->getMessage(), (int)$e->getCode());
-      	}
+      		}
 		}	
 		
 	public function query($sql, $args = NULL) {
@@ -41,10 +41,10 @@ class mysql {
 
 
 	function escape ($q_string) {	
-		// replace deprecated mysql_real_escape_string ($string);
+		// remove deprecated: mysql_real_escape_string ($string);
+		// eliminate this func after all calls are removed
 		// Quotes a string for use in a query by placing quotes around the input string (if required) 
 		// and escapes special characters within the input string
-// not using 		
         	return $q_string;
         }
 
