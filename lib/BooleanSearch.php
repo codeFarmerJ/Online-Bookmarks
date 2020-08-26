@@ -196,7 +196,6 @@ function assemble_query ($criteria, $searchfields) {
 	$whereCriterias = parsecriteria ($criteria);
 	//var_dump($whereCriterias); //@@@
 
-
 	$whereData = array();
 	$columnNumber = 0;
 
@@ -208,9 +207,10 @@ function assemble_query ($criteria, $searchfields) {
 	    $thisnesting = $mycriteria[3];
 	    if ($thisnesting >= $nesting) {
 	        $whereClause .= str_repeat('(', $thisnesting - $nesting);
-	    } else {
+			} 
+		else {
 	        $whereClause .= str_repeat(')', $nesting - $thisnesting);
-	    }
+	    	}
 	    $nesting = $thisnesting;
 
 	    $firstcolumn = TRUE;
@@ -218,19 +218,21 @@ function assemble_query ($criteria, $searchfields) {
 	    foreach ($searchfields as $column) {
 	        if ($firstcolumn) {
 	            $firstcolumn = FALSE;
-	        } else    {
+				} 
+			else {
 	            $whereClause .= ' OR ';
-	        }
+	        	}
 
 	        if ($mycriteria[2]) {
 	            $whereClause .= "$column LIKE " . '\'' .'%' . $mysql->escape ($mycriteria[1]) . '%' . '\'' ;
-	        } else {
+				} 
+			else {
 	            /* no wildcard, so match exact words using a REGEXP */
 	            $whereClause .= "$column RLIKE " . '\'' . '[[:<:]]' . $mysql->escape ($mycriteria[1]) .  '[[:>:]]' . '\'';
-	        }
-	    } //foreach $column
+	        	}
+	    	} //foreach $column
 	    $whereClause .= ')';
-	} //foreach $whereCriterias
+		} //foreach $whereCriterias
 
 	$whereClause .= str_repeat(')', $nesting);
 	$whereClause = trim ($whereClause);
@@ -253,13 +255,13 @@ function assemble_query ($criteria, $searchfields) {
 					AND bookmark.deleted!='1'
 					AND ( %s )
 					ORDER BY title",
-					$mysql->escape ($username),
+					$username,
 					$whereClause);
 	
-	}
+		}
 	else {
 		$query = false;
-	}
+		}
 	return $query;
 
 }
