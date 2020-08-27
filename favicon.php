@@ -4,6 +4,7 @@ if (basename ($_SERVER['SCRIPT_NAME']) == basename (__FILE__)) {
 }
 
 class favicon {
+	
 	function favicon ($url) {
 		global $settings, $convert_favicons;
 		if ($settings['show_bookmark_icon']) {
@@ -13,15 +14,15 @@ class favicon {
 					if ($this->get_favicon_image ()) {
 						if ($convert_favicons) {
 							$this->favicon = $this->convert_favicon ();
-						}
+							}
 						else {
 							$this->favicon = "./favicons/" . $this->icon_name;
+							}
 						}
 					}
 				}
 			}
 		}
-	}
 	###
 	### check the image type and convert & resize it if required
 	### returns the absolute path of the (converted) .png file
@@ -36,21 +37,21 @@ class favicon {
 			$ident = explode (" ", $output[0]);
 			if (count ($output) > 1) {
 				$file_to_convert = $ident[0];
-			}
+				}
 			else {
 				$file_to_convert = $tmp_file;
-			}
+				}
 
 			# convert image in any case to 16x16 and .png
 			system ("$convert $file_to_convert -resize 16x16 $tmp_file.png");
 			@unlink ($tmp_file);
 			return $tmp_file . ".png";
-		}
+			}
 		else {
 			@unlink ($tmp_file);
 			return false;
+			}
 		}
-	}
 
 	###
 	### download and save favicon
@@ -77,7 +78,7 @@ class favicon {
 			$answerdata = null;
 			do {
 				$answerdata .= fread($httphandle, 1024);
-			} while (feof($httphandle) != true);
+				} while (feof($httphandle) != true);
 
 			// Verbindung schliessen
 			fclose ($httphandle);
@@ -91,15 +92,15 @@ class favicon {
 				fwrite($fp, $finalfile);
 				fclose($fp);
 				return true;
-			}
+				}
 			else {
 				return false;
+				}
 			}
-		}
 		else {
 			return false;
+			}
 		}
-	}
 
 	###
 	### checks for the existence of a favicon on a remote server
@@ -115,7 +116,7 @@ class favicon {
 			if (ereg ("200 OK", $http_response)) {
 				#echo "favicon found in document root\n";
 				return $this->parsed_url['scheme'] . "://" . $this->parsed_url['host'] . ":" . $this->parsed_url['port'] . "/favicon.ico";
-			}
+				}
 			else {
 				# if favicon was not found in document root, search in html header for it
 				if ($socket = @fsockopen ($this->parsed_url['host'], $this->parsed_url['port'], $errno, $errstr, $timeout)) {
@@ -124,14 +125,14 @@ class favicon {
 						$html = fgets ($socket, 1024);
 						if ($html == null) {
 							return false;
-						}
+							}
 
 						# we only want to search in HTML documents
 						if (preg_match ('/.*Content-Type:.*/si', $html, $contenttype)) {
 							if ( ! preg_match ('/text\/html/si', $contenttype[0])) {
 								return false;
+								}
 							}
-						}
 
 						if (preg_match ('/<link[^>]+rel="(?:shortcut )?icon".*>/si', $html, $tag)) {
 							#echo "found favicon in html header\n";
@@ -139,11 +140,11 @@ class favicon {
 								# the favicon location is an url
 								if (substr($location[1], 0, 7) == 'http://') {
 									$favicon = $location[1];
-								}
+									}
 								# the favicon location is an absolute path
 								else if (substr ($location[1], 0, 1) == '/') {
 									$favicon = $this->parsed_url['scheme'] . '://' . $this->parsed_url['host'] . ":" . $this->parsed_url['port'] . $location[1];
-								}
+									}
 								# else the path can only be something useless
 								# or a relative path, looking like this.
 								# ./path/to/favicon.ico
@@ -153,25 +154,25 @@ class favicon {
 									# We have to guess. We assume it is a directory if there is a trailing slash
 									if (substr ($this->parsed_url['path'], strlen($this->parsed_url['path'])-1) == "/") {
 										$favicon = $this->parsed_url['scheme'] . '://' . $this->parsed_url['host'] . ":" . $this->parsed_url['port'] . $this->parsed_url['path'] . $location[1];
-									}
+										}
 									else {
 										$favicon = $this->parsed_url['scheme'] . '://' . $this->parsed_url['host'] . ":" . $this->parsed_url['port'] . dirname ($this->parsed_url['path']) . '/' . $location[1];
+										}
 									}
-								}
 								return $favicon;
+								}
 							}
-						}
 						else if (preg_match ('/.*<\/head.*>/si', $html)) {
 							#echo "html header end found, giving up\n";
 							return false;
+							}
 						}
-					}
 					fclose ($socket);
+					}
 				}
 			}
-		}
 		return false;
-	}
+		}
 
 	###
 	### returns an array with parts of the given url
@@ -180,25 +181,25 @@ class favicon {
 		if ($parsed = @parse_url ($url)) {
 			if (!isset ($parsed['scheme']) || $parsed['scheme'] == "") {
 				$parsed['scheme'] = "http";
-			}
+				}
 			else if ($parsed['scheme'] != "http") {
 				return false;
-			}
+				}
 			if (!isset ($parsed['host']) || $parsed['host'] == "") {
 				return false;
-			}
+				}
 			if (!isset ($parsed['port']) || $parsed['port'] == "") {
 				$parsed['port'] = 80;
-			}
+				}
 			if (!isset ($parsed['path']) || $parsed['path'] == "") {
 				$parsed['path'] = "/";
-			}
+				}
 			return ($parsed);
-		}
+			}
 		else {
 			return false;
+			}	
 		}
 	}
-}
 
 ?>
