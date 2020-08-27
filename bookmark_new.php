@@ -20,25 +20,25 @@ if ($post_title == '' || $post_url == '') {
 	$path = $tree->print_path ($folderid);
 	if ($post_title != '') {
 		$title = $post_title;
-	}
+		}
 	else {
 		$title = $get_title;
-	}
+		}
 	if ($post_url != '') {
 		$url = $post_url;
-	}
+		}
 	else if ($get_url != '') {
 		$url = $get_url;
-	}
+		}
 	else {
 		$url = 'http://';
-	}
+		}
 	if (strtolower (basename ($_SERVER['SCRIPT_NAME'])) == 'bookmark_add.php') {
 		$js_onclick = 'history.back()';
-	}
+		}
 	else {
 		$js_onclick = 'self.close()';
-	}
+		}
 
 ?>
 
@@ -69,51 +69,38 @@ if ($post_title == '' || $post_url == '') {
 <?php
 }
 else {
-//	$query = sprintf ("INSERT INTO bookmark
-//		(user, title, url, description, childof, public)
-//		VALUES ('%s', '%s', '%s', '%s', '%d', '%d')", 
-//		$mysql->escape ($username),
-//		$mysql->escape ($post_title),
-//		$mysql->escape ($post_url),
-//		$mysql->escape ($post_description),
-//		$mysql->escape ($post_childof),
-//		$mysql->escape ($post_public));
 	$query = "INSERT INTO bookmark (user, title, url, description, childof, public) VALUES (?,?,?,?,?,?)";
 	$args = [$username,$post_title,$post_url,$post_description,$post_childof,$post_public ];
 	if ($mysql->query ($query,$args)) {
 		echo "Bookmark successfully created<br>\n";
-		$bm_id = mysql_insert_id ();
-	}
+		//$bm_id = mysql_insert_id (); // does this function even exist?
+		}
 	else {
 		message ($mysql->error);
-	}
+		}
 	unset ($_SESSION['title'], $_SESSION['url']);
 
 	# saving the favicon in a separate second step is done because
 	# we want to make sure the bookmark is saved in any case. the
 	# favicon is not that important.
-	if ($settings['show_bookmark_icon']) {
-		require_once (ABSOLUTE_PATH . "favicon.php");
-		$favicon = new favicon ($post_url);
-		if (isset ($favicon["favicon"])) {
-//			$query = sprintf ("UPDATE bookmark set favicon='%s' WHERE user='%s' AND id='%d'", 
-//				$mysql->escape ($favicon->favicon),
-//				$mysql->escape ($username),
-//				$mysql->escape ($bm_id));
-			$query = "UPDATE bookmark set favicon=? WHERE user=? AND id=?";
-			$args = [$favicon["favicon"], $username, $bm_id];
-			$mysql->query ($query,$args);
-			$icon = '<img src="'.$favicon["favicon"].'">';
-		}
-		else {
-			$icon = $bookmark_image;
-		}
-	}
+# omit this for now
+#	if ($settings['show_bookmark_icon']) {
+#		require_once (ABSOLUTE_PATH . "favicon.php");
+#		if (isset ($favicon["favicon"])) {
+#			$query = "UPDATE bookmark set favicon=? WHERE user=? AND id=?";
+#			$args = [$favicon["favicon"], $username, $bm_id];
+#			$mysql->query ($query,$args);
+#			$icon = '<img src="'.$favicon["favicon"].'">';
+#			}
+#		else {
+#			$icon = $bookmark_image;
+#			}
+#		}
 
 	if (strtolower (basename ($_SERVER['SCRIPT_NAME'])) == "bookmark_add.php") {
 		echo 'Back to '.$icon.' <a href="'.$post_url.'">'.$post_title.'</a><br>' . "\n";
 		echo 'Open '.$folder_opened.' <a href="./index.php'.$query_string.'">folder</a> containing new Bookmark<br>' . "\n";
-	}
+		}
 	else {
 		echo '<script language="JavaScript">reloadclose();</script>';
 		# I know, the following is ugly, but I found no other way to do.
@@ -121,7 +108,7 @@ else {
 		# window.opener that can be closed. Thus javascript exits with an error
 		# without finishing itself (self.close()).
 		echo '<script language="JavaScript">self.close();</script>';
+		}
 	}
-}
 require_once (ABSOLUTE_PATH . "footer.php");
 ?>
