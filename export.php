@@ -64,9 +64,9 @@ if (!isset ($_POST['browser']) || $_POST['browser'] == "" ||
       </td>
       <td width="<?php echo $column_width_folder?>">
         <select name="browser">
-          <option value="IE"<?php if ($default_browser == "IE") {echo " selected"; } ?>>Internet Explorer</option>
-          <option value="netscape"<?php if ($default_browser == "netscape") {echo " selected"; } ?>>Netscape / Mozilla</option>
-          <option value="opera"<?php if ($default_browser == "opera") {echo " selected"; } ?>>Opera .adr</option>
+			<option value="netscape"<?php if ($default_browser == "netscape") {echo " selected"; } ?>>.html Netscape / Mozilla</option>
+			<option value="IE"<?php if ($default_browser == "IE") {echo " selected"; } ?>>.htm Internet Explorer</option>
+          <option value="opera"<?php if ($default_browser == "opera") {echo " selected"; } ?>>.adr Opera</option>
         </select>
       </td>
     </tr>
@@ -165,12 +165,12 @@ else{
 	$folderid = set_get_folderid ();
 	if ($browser == "netscape" || $browser == "IE") {
 		echo "<!DOCTYPE NETSCAPE-Bookmark-file-1>\n";
-		echo "<TITLE>Bookmarks</TITLE>\n";
-		echo "<H1>Bookmarks</H1>\n";
-		echo "<DL><p>\n";
+		echo "<title>Bookmarks</title>\n";
+		echo "<h1>Bookmarks</h1>\n";
+		echo "<dl><p>\n";
 		$export = new export;
 		$export->make_tree ($folderid);
-		echo "</DL><p>\n";
+		echo "</dl><p>\n";
 	}
 	else if ($browser == "opera") {
 		echo "Opera Hotlist version 2.0\n";
@@ -203,26 +203,20 @@ class export {
 		}
 
 		# collect the bookmark data
-		$query = sprintf ("SELECT title, url, description, childof, id
-			FROM bookmark 
-			WHERE user='%s' 
-			AND deleted!='1'",
-			$mysql->escape ($username));
-	
-//		if ($mysql->query ($query)) {
-		if ($result = $mysql->query ($query)) {
-//			while ($row = mysql_fetch_assoc ($mysql->result)) {
+		$query = "SELECT title, url, description, childof, id FROM bookmark WHERE user=? AND deleted!='1'";
+		$args = [$username];
+		if ($result = $mysql->query ($query, $args)) {
 			while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
 				if (!isset ($this->bookmarks[$row['childof']])) {
 					$this->bookmarks[$row['childof']] = array ();
-				}
+					}
 				array_push ($this->bookmarks[$row['childof']], $row);
+				}
+			}
+		else {
+			message ($mysql->error);
 			}
 		}
-		else {
-//			message ($mysql->error);
-		}
-	}
 
 	function make_tree ($id) {
 		if (isset ($this->tree->children[$id])) {
@@ -231,39 +225,39 @@ class export {
 				$this->print_folder ($value);
 				$this->make_tree ($value);
 				$this->print_folder_close ();
-			}
+				}
 			$this->counter--;
-		}
+			}
 		$this->print_bookmarks ($id);
-	}
+		}
 
 
 	function print_folder ($folderid) {
 		$spacer = str_repeat ("    ", $this->counter);
 		$foldername = html_entity_decode ($this->tree->folders[$folderid]['name'], ENT_QUOTES, $this->charset);
 		if ($this->browser == "netscape") {
-			echo $spacer . "<DT><H3>" . $foldername . "</H3>\n";
-			echo $spacer . "<DL><p>\n";
-		}
+			echo $spacer . "<dt><h3>" . $foldername . "</h3>\n";
+			echo $spacer . "<dl><p>\n";
+			}
 		else if ($this->browser == "IE") {
-			echo $spacer . '<DT><H3 FOLDED ADD_DATE="">' . $foldername . "</H3>\n";
-			echo $spacer . "<DL><p>\n";
-		}
+			echo $spacer . '<dt><h3 FOLDED ADD_DATE="">' . $foldername . "</h3>\n";
+			echo $spacer . "<dl><p>\n";
+			}
 		else if ($this->browser == "opera") {
 			echo "\n#FOLDER\n";
 			echo "\tNAME=" . $foldername . "\n";
+			}
 		}
-	}
 
 	function print_folder_close () {
 		$spacer = str_repeat ("    ", $this->counter); 
 		if ($this->browser == "netscape" || $this->browser == "IE"){
-			echo $spacer . "</DL><p>\n";
-		}
+			echo $spacer . "</dl><p>\n";
+			}
 		else if ($this->browser == "opera"){
 			echo "\n-\n";
+			}
 		}
-	}
 
 	function print_bookmarks ($folderid) {
 		$spacer = str_repeat ("    ", $this->counter); 
@@ -273,22 +267,22 @@ class export {
 				$title = html_entity_decode ($value['title'], ENT_QUOTES, $this->charset);
 				if ($value['description'] != '') {
 					$description = html_entity_decode ($value['description'], ENT_QUOTES, $this->charset);
-				}
+					}
 				else {
 					$description = '';
-				}
+					}
 				
 				if ($this->browser == 'netscape') {
-					echo $spacer . '    <DT><A HREF="' . $url . '">' . $title . "</A>\n";
+					echo $spacer . '    <dt><a href="' . $url . '">' . $title . "</a>\n";
 					if ($description != '') {
-						echo $spacer . '    <DD>' . $description . "\n";
+						echo $spacer . '    <dd>' . $description . "\n";
+						}
 					}
-				}
 				else if ($this->browser == 'IE') {
-					echo $spacer . '    <DT><A HREF="' . $url . '" ADD_DATE="" LAST_VISIT="" LAST_MODIFIED="">' . $title . "</A>\n";
+					echo $spacer . '    <dt><a href="' . $url . '" ADD_DATE="" LAST_VISIT="" LAST_MODIFIED="">' . $title . "</a>\n";
 					# unfortunately description for bookmarks in MS Internet Explorer is not supported.
 					# thats why we just ignore the output of the description here.
-				}
+					}
 				else if ($this->browser == 'opera') {
 					echo "\n#URL\n";
 					echo "\tNAME=" . $title . "\n";
@@ -297,11 +291,11 @@ class export {
 						# opera cannot handle the \r\n character, so we fix this.
 						$description = str_replace ("\r\n", " ", $description);
 						echo "\tDESCRIPTION=" . $description . "\n";
+						}
 					}
 				}
 			}
 		}
 	}
-}
 
 ?>
